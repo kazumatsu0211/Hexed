@@ -9,7 +9,9 @@ CLAUDE.md からこのファイルを参照する形で運用します。
 
 ### 型定義
 - `interface` ではなく `type` を優先（拡張が必要な場合のみ `interface`）
-- すべての関数の引数・戻り値に型を明示
+- 関数の引数の型は常に明示（推論できないため必須）
+- export 関数の戻り値の型は明示（公開 API の契約として）
+- 内部ヘルパー関数の戻り値の型は推論で OK（短く自明な場合）
 - `any` 禁止。代わりに `unknown` を使い、型ガードで絞り込む
 - `as` キャストは最小限。可能な限り型ガードで対応
 
@@ -103,8 +105,9 @@ export function calculateEffect(state: GameState): EffectResult {
 - カバレッジは目指さない。重要なロジックを確実にテストする方針
 
 ### ファイル配置
-- テストファイルは対象と同じディレクトリに `*.test.ts` で配置
-- 例：`src/core/board.ts` のテストは `src/core/board.test.ts`
+- テストファイルは対象と同じディレクトリに `*.spec.ts` で配置
+- 例：`src/core/board.ts` のテストは `src/core/board.spec.ts`
+- BDD（Behavior-Driven Development）の慣習に従い、`.spec`（仕様）を採用
 
 ### テスト記述
 - `describe` でグループ化

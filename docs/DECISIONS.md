@@ -7,6 +7,37 @@
 
 ---
 
+## 2026-05-06: 関数の戻り値型注釈は export のみ必須
+
+### 文脈
+当初 CONVENTIONS §1 で「すべての関数の引数・戻り値に型を明示」と定めたが、
+内部ヘルパー関数まで全注釈は冗長で、TypeScript の型推論の利点を活かせない。
+Phase 1 の `src/core/board.ts` リファクタで `buildEffectPool`, `buildGrid`,
+`shuffle` 等の内部ヘルパーが増え、規約と実装の整合性を見直す必要が生じた。
+
+### 決定
+- 引数の型：常に明示（推論不可のため）
+- 戻り値の型：**export 関数のみ明示**、内部ヘルパーは推論に委ねる
+
+### 理由
+- export 関数 = モジュール境界 = 公開 API → 契約として明示すべき
+- 内部ヘルパー = 同一ファイル内で完結 → 推論で十分、変更時の追従も容易
+- 業界主流（Google TypeScript Style Guide,
+  `@typescript-eslint/explicit-module-boundary-types`）と整合
+- Unity 移植時、C# の public メソッドはシグネチャ明示が必須なので、
+  export 注釈の習慣がそのまま活きる
+
+### 代替案
+- A. すべて注釈（当初 CONVENTIONS）→ 内部ヘルパーで冗長
+- B. すべて推論 → API 契約が不明瞭、エラー位置がブレる
+
+### トレードオフ
+- 「export かどうか」の判断が一手間増える
+- 将来 `@typescript-eslint/explicit-module-boundary-types` を導入すれば
+  機械的に強制可能
+
+---
+
 ## 2026-05-XX: Web プロトを先に作り、後で Unity に移植する
 
 ### 文脈
