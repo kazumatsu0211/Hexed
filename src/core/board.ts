@@ -1,4 +1,4 @@
-import type { Board, Tile, TileEffect } from "./types";
+import type { Board, Position, Tile, TileEffect } from "./types";
 
 export const BOARD_ROWS = 5;
 export const BOARD_COLS = 5;
@@ -75,6 +75,20 @@ export function countUnrevealedByEffect(
   }
 
   return counts;
+}
+
+function isSamePosition(target: Position, current: Position) {
+  return target.row === current.row && target.col === current.col;
+}
+
+export function revealTile(board: Board, target: Position): Board {
+  return board.map((row) =>
+    row.map((tile) =>
+      isSamePosition(target, tile.position)
+        ? { ...tile, isRevealed: true }
+        : tile,
+    ),
+  );
 }
 
 export function getRow(board: Board, row: number): Tile[] {
