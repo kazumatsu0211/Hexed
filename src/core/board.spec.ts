@@ -1,6 +1,6 @@
 import {
-  createBoard,
   countUnrevealedByEffect,
+  createBoard,
   TILE_DISTRIBUTION,
 } from "./board";
 
