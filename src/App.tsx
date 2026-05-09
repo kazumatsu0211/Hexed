@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 import { BoardGrid } from "./components/BoardGrid/BoardGrid";
+import { HpBar } from "./components/HpBar/HpBar";
 import { TileButton } from "./components/TileButton/TileButton";
 import { createBoard, revealTile } from "./core/board";
 import type { Board, Position } from "./core/types";
@@ -17,6 +18,9 @@ export function App() {
       <h1 className="text-6xl font-title text-accent-gold tracking-wider">
         HEXED
       </h1>
+      <HpBar hp={5} maxHp={5} label="MAX" />
+      <HpBar hp={0} maxHp={5} label="DEAD" />
+      <HpBar hp={3} maxHp={5} label="MID" />
       <BoardGrid
         tileButtons={board.flat().map((tile) => (
           <TileButton
