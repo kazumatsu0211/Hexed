@@ -1,41 +1,56 @@
-import { useState } from "react";
-
 import { BoardGrid } from "./components/BoardGrid/BoardGrid";
+import { GameOverModal } from "./components/GameOverModal/GameOverModal";
 import { HpBar } from "./components/HpBar/HpBar";
 import { TileButton } from "./components/TileButton/TileButton";
-import { createBoard, revealTile } from "./core/board";
-import type { Board, Position } from "./core/types";
+import { useGameStore } from "./store/gameStore";
 
 export function App() {
-  const [board, setBoard] = useState<Board>(() => createBoard());
+  const board = useGameStore((s) => s.board);
+  const players = useGameStore((s) => s.players);
+  const currentTurn = useGameStore((s) => s.currentTurn);
+  const turnCount = useGameStore((s) => s.turnCount);
+  const winner = useGameStore((s) => s.winner);
 
-  function handleTileClick(position: Position) {
-    setBoard((prev) => revealTile(prev, position));
-  }
+  const openTile = useGameStore((s) => s.openTile);
+  const reset = useGameStore((s) => s.reset);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-6 p-8">
+    <div className="min-h-screen flex flex-col items-center p-8 gap-4">
       <h1 className="text-6xl font-title text-accent-gold tracking-wider">
         HEXED
       </h1>
-      <HpBar hp={5} maxHp={5} label="MAX" />
-      <HpBar hp={0} maxHp={5} label="DEAD" />
-      <HpBar hp={3} maxHp={5} label="MID" />
+
+      <p className="text-accent-gold/60">
+        Turn {turnCount + 1} —{" "}
+        {currentTurn === "player" ? "🟢 Your turn" : "🔴 CPU turn"}
+      </p>
+
+      <HpBar
+        hp={players.cpu.hp}
+        maxHp={players.cpu.maxHp}
+        label={`CPU (${players.cpu.character.name})`}
+      />
+
       <BoardGrid
         tileButtons={board.flat().map((tile) => (
           <TileButton
             key={`${tile.position.row}-${tile.position.col}`}
             tile={tile}
-            onClick={() => handleTileClick(tile.position)}
+            onClick={() => openTile(tile.position)}
+            disabled={currentTurn !== "player" || winner !== "ongoing"}
           />
         ))}
       />
-      <button
-        onClick={() => setBoard(createBoard())}
-        className="px-4 py-2 bg-accent-gold/20 hover:bg-accent-gold/30 rounded text-accent-gold transition-colors"
-      >
-        New Board
-      </button>
+
+      <HpBar
+        hp={players.player.hp}
+        maxHp={players.player.maxHp}
+        label={`YOU (${players.player.character.name})`}
+      />
+
+      {winner !== "ongoing" && (
+        <GameOverModal winner={winner} onRestart={reset} />
+      )}
     </div>
   );
 }
