@@ -24,6 +24,8 @@ export type GameStoreActions = {
   reset: () => void;
   applyPokerface: () => void;
   applyGag: () => void;
+  applyMonocle: (position: Position) => void;
+  applyPeephole: () => void;
 };
 
 export type GameStore = GameStoreState & GameStoreActions;

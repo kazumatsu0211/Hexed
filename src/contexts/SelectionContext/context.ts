@@ -2,9 +2,14 @@ import { createContext } from "react";
 
 import type { ItemId } from "../../core/types";
 
+export type ItemSelection = {
+  id: ItemId;
+  index: number;
+};
+
 export type SelectionContextValue = {
-  selectedItem: ItemId | null;
-  selectItem: (id: ItemId) => void;
+  selectedItem: ItemSelection | null;
+  selectItem: (id: ItemId, index: number) => void;
   clearSelection: () => void;
 };
 

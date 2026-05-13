@@ -2,6 +2,8 @@ import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
 import { applyGag } from "./_actions/applyGag";
+import { applyMonocle } from "./_actions/applyMonocle";
+import { applyPeephole } from "./_actions/applyPeephole";
 import { applyPokerface } from "./_actions/applyPokerface";
 import { endTurn } from "./_actions/endTurn";
 import { initGame } from "./_actions/initGame";
@@ -30,5 +32,9 @@ export const useGameStore = create<GameStore>()(
     applyPokerface: () => set(applyPokerface),
 
     applyGag: () => set(applyGag),
+
+    applyMonocle: (position) => set((draft) => applyMonocle(draft, position)),
+
+    applyPeephole: () => set(applyPeephole),
   })),
 );

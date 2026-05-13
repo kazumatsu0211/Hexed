@@ -1,7 +1,7 @@
 import { type ReactNode, useCallback, useMemo, useState } from "react";
 
 import type { ItemId } from "../../core/types";
-import { SelectionContext } from "./context";
+import { type ItemSelection, SelectionContext } from "./context";
 
 type SelectionProviderProps = {
   children: ReactNode;
@@ -10,10 +10,10 @@ type SelectionProviderProps = {
 export function SelectionProvider(props: SelectionProviderProps) {
   const { children } = props;
 
-  const [selectedItem, setSelectedItem] = useState<ItemId | null>(null);
+  const [selectedItem, setSelectedItem] = useState<ItemSelection | null>(null);
 
-  const selectItem = useCallback((id: ItemId) => {
-    setSelectedItem(id);
+  const selectItem = useCallback((id: ItemId, index: number) => {
+    setSelectedItem({ id, index });
   }, []);
 
   const clearSelection = useCallback(() => {

@@ -6,6 +6,7 @@ import { HpBar } from "./components/HpBar/HpBar";
 import { ItemButton } from "./components/ItemButton/ItemButton";
 import { TileButton } from "./components/TileButton/TileButton";
 import { useSelectionContext } from "./contexts/SelectionContext/useSelectionContext";
+import type { Position } from "./core/types";
 import { useGameStore } from "./store/gameStore";
 
 export function App() {
@@ -14,10 +15,13 @@ export function App() {
   const currentTurn = useGameStore((s) => s.currentTurn);
   const turnCount = useGameStore((s) => s.turnCount);
   const winner = useGameStore((s) => s.winner);
+  const peekedSelf = useGameStore((s) => s.peeked.player);
   const openTile = useGameStore((s) => s.openTile);
   const reset = useGameStore((s) => s.reset);
   const applyPokerface = useGameStore((s) => s.applyPokerface);
   const applyGag = useGameStore((s) => s.applyGag);
+  const applyMonocle = useGameStore((s) => s.applyMonocle);
+  const applyPeephole = useGameStore((s) => s.applyPeephole);
 
   const { selectedItem, selectItem, clearSelection } = useSelectionContext();
 
@@ -25,20 +29,46 @@ export function App() {
   const isGagged = selfPlayer.gaggedTurns > 0;
   const isPlayerTurn = currentTurn === "player";
   const canUseItems = isPlayerTurn && !isGagged && winner === "ongoing";
+  const selectedItemId = selectedItem?.id ?? null;
+  const requiresTarget =
+    selectedItemId === "monocle" || selectedItemId === "cheatingSleeve";
+
+  function findPeekedAt(position: Position) {
+    return peekedSelf.find(
+      (p) =>
+        p.position.row === position.row && p.position.col === position.col,
+    );
+  }
+
+  function handleTileClick(position: Position) {
+    if (selectedItemId === "monocle") {
+      applyMonocle(position);
+      clearSelection();
+      return;
+    }
+    if (selectedItemId === null) {
+      openTile(position);
+    }
+  }
 
   function handleUseSelected() {
-    if (!selectedItem) return;
+    if (!selectedItemId) return;
 
-    match(selectedItem)
+    match(selectedItemId)
       .with("pokerFace", () => applyPokerface())
       .with("gag", () => applyGag())
-      .with("monocle", () => {}) // Phase 5 中盤で実装
-      .with("peephole", () => {}) // Phase 5 中盤で実装
+      .with("peephole", () => applyPeephole())
+      .with("monocle", () => {}) // ターゲット選択型なのでここでは何もしない
       .with("cheatingSleeve", () => {}) // Phase 5 後半で実装
       .exhaustive();
 
     clearSelection();
   }
+
+  const tilesDisabled =
+    !isPlayerTurn ||
+    winner !== "ongoing" ||
+    (selectedItemId !== null && selectedItemId !== "monocle");
 
   return (
     <div className="min-h-screen flex flex-col items-center p-8 gap-4">
@@ -61,10 +91,9 @@ export function App() {
           <TileButton
             key={`${tile.position.row}-${tile.position.col}`}
             tile={tile}
-            onClick={() => openTile(tile.position)}
-            disabled={
-              !isPlayerTurn || winner !== "ongoing" || selectedItem !== null
-            }
+            peeked={findPeekedAt(tile.position)}
+            onClick={() => handleTileClick(tile.position)}
+            disabled={tilesDisabled}
           />
         ))}
       />
@@ -80,8 +109,8 @@ export function App() {
           <ItemButton
             key={`${item.id}-${i}`}
             item={item}
-            onClick={() => selectItem(item.id)}
-            selected={selectedItem === item.id}
+            onClick={() => selectItem(item.id, i)}
+            selected={selectedItem?.index === i}
             disabled={!canUseItems}
           />
         ))}
@@ -90,16 +119,18 @@ export function App() {
       {selectedItem && (
         <div className="flex gap-3 items-center">
           <span className="text-accent-gold-dim">
-            {selectedItem === "pokerFace" || selectedItem === "gag"
-              ? "使用ボタンで発動"
-              : "ターゲットを選択してください"}
+            {requiresTarget
+              ? "ターゲットを選択してください"
+              : "使用ボタンで発動"}
           </span>
-          <button
-            onClick={handleUseSelected}
-            className="px-4 py-2 bg-accent-gold text-bg-dark rounded font-bold hover:bg-accent-gold/80 transition-colors"
-          >
-            使用
-          </button>
+          {!requiresTarget && (
+            <button
+              onClick={handleUseSelected}
+              className="px-4 py-2 bg-accent-gold text-bg-dark rounded font-bold hover:bg-accent-gold/80 transition-colors"
+            >
+              使用
+            </button>
+          )}
           <button
             onClick={clearSelection}
             className="px-4 py-2 border-2 border-accent-gold-dim text-accent-gold rounded hover:border-accent-gold transition-colors"
