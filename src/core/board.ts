@@ -77,14 +77,14 @@ export function countUnrevealedByEffect(
   return counts;
 }
 
-function isSamePosition(target: Position, current: Position) {
-  return target.row === current.row && target.col === current.col;
+export function isSamePosition(a: Position, b: Position) {
+  return a.row === b.row && a.col === b.col;
 }
 
 export function revealTile(board: Board, target: Position): Board {
   return board.map((row) =>
     row.map((tile) =>
-      isSamePosition(target, tile.position)
+      isSamePosition(tile.position, target)
         ? { ...tile, isRevealed: true }
         : tile,
     ),

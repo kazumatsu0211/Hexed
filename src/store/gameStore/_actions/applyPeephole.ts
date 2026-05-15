@@ -1,11 +1,7 @@
 import type { Draft } from "immer";
 
-import type { Position } from "../../../core/types";
+import { isSamePosition } from "../../../core/board";
 import type { GameStoreState } from "../types";
-
-function isSamePosition(a: Position, b: Position) {
-  return a.row === b.row && a.col === b.col;
-}
 
 export function applyPeephole(draft: Draft<GameStoreState>) {
   const currentSide = draft.currentTurn;

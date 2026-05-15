@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { match } from "ts-pattern";
 
 import { BoardGrid } from "./components/BoardGrid/BoardGrid";
@@ -6,7 +7,8 @@ import { HpBar } from "./components/HpBar/HpBar";
 import { ItemButton } from "./components/ItemButton/ItemButton";
 import { TileButton } from "./components/TileButton/TileButton";
 import { useSelectionContext } from "./contexts/SelectionContext/useSelectionContext";
-import type { Position } from "./core/types";
+import { isSamePosition } from "./core/board";
+import type { ItemId, Position } from "./core/types";
 import { useGameStore } from "./store/gameStore";
 
 export function App() {
@@ -22,8 +24,21 @@ export function App() {
   const applyGag = useGameStore((s) => s.applyGag);
   const applyMonocle = useGameStore((s) => s.applyMonocle);
   const applyPeephole = useGameStore((s) => s.applyPeephole);
+  const applyCheatingSleeve = useGameStore((s) => s.applyCheatingSleeve);
+  const endTurn = useGameStore((s) => s.endTurn);
 
   const { selectedItem, selectItem, clearSelection } = useSelectionContext();
+
+  const [cheatFirst, setCheatFirst] = useState<Position | null>(null);
+
+  // TODO Phase 7: CPU AI を実装したらこのスキャフォルドを置き換える
+  useEffect(() => {
+    if (currentTurn !== "cpu") return;
+    if (useGameStore.getState().winner !== "ongoing") return;
+
+    const timer = setTimeout(() => endTurn(), 500);
+    return () => clearTimeout(timer);
+  }, [currentTurn, endTurn]);
 
   const selfPlayer = players.player;
   const isGagged = selfPlayer.gaggedTurns > 0;
@@ -34,21 +49,45 @@ export function App() {
     selectedItemId === "monocle" || selectedItemId === "cheatingSleeve";
 
   function findPeekedAt(position: Position) {
-    return peekedSelf.find(
-      (p) =>
-        p.position.row === position.row && p.position.col === position.col,
-    );
+    return peekedSelf.find((p) => isSamePosition(p.position, position));
+  }
+
+  function handleSelectItem(id: ItemId, index: number) {
+    setCheatFirst(null);
+    selectItem(id, index);
+  }
+
+  function handleCancel() {
+    setCheatFirst(null);
+    clearSelection();
+  }
+
+  function handleMonocleClick(position: Position) {
+    applyMonocle(position);
+    clearSelection();
+  }
+
+  function handleCheatingSleeveClick(position: Position) {
+    if (cheatFirst === null) {
+      setCheatFirst(position);
+      return;
+    }
+    if (isSamePosition(cheatFirst, position)) {
+      setCheatFirst(null);
+      return;
+    }
+    applyCheatingSleeve(cheatFirst, position);
+    setCheatFirst(null);
+    clearSelection();
   }
 
   function handleTileClick(position: Position) {
-    if (selectedItemId === "monocle") {
-      applyMonocle(position);
-      clearSelection();
-      return;
-    }
-    if (selectedItemId === null) {
-      openTile(position);
-    }
+    match(selectedItemId)
+      .with(null, () => openTile(position))
+      .with("monocle", () => handleMonocleClick(position))
+      .with("cheatingSleeve", () => handleCheatingSleeveClick(position))
+      .with("pokerFace", "gag", "peephole", () => {})
+      .exhaustive();
   }
 
   function handleUseSelected() {
@@ -59,7 +98,7 @@ export function App() {
       .with("gag", () => applyGag())
       .with("peephole", () => applyPeephole())
       .with("monocle", () => {}) // ターゲット選択型なのでここでは何もしない
-      .with("cheatingSleeve", () => {}) // Phase 5 後半で実装
+      .with("cheatingSleeve", () => {}) // ターゲット選択型なのでここでは何もしない
       .exhaustive();
 
     clearSelection();
@@ -68,7 +107,18 @@ export function App() {
   const tilesDisabled =
     !isPlayerTurn ||
     winner !== "ongoing" ||
-    (selectedItemId !== null && selectedItemId !== "monocle");
+    (selectedItemId !== null &&
+      selectedItemId !== "monocle" &&
+      selectedItemId !== "cheatingSleeve");
+
+  const targetMessage = match({ selectedItemId, cheatFirst })
+    .with({ selectedItemId: "cheatingSleeve", cheatFirst: null }, () =>
+      "1マス目を選択してください",
+    )
+    .with({ selectedItemId: "cheatingSleeve" }, () =>
+      "2マス目を選択してください",
+    )
+    .otherwise(() => "ターゲットを選択してください");
 
   return (
     <div className="min-h-screen flex flex-col items-center p-8 gap-4">
@@ -109,7 +159,7 @@ export function App() {
           <ItemButton
             key={`${item.id}-${i}`}
             item={item}
-            onClick={() => selectItem(item.id, i)}
+            onClick={() => handleSelectItem(item.id, i)}
             selected={selectedItem?.index === i}
             disabled={!canUseItems}
           />
@@ -119,9 +169,7 @@ export function App() {
       {selectedItem && (
         <div className="flex gap-3 items-center">
           <span className="text-accent-gold-dim">
-            {requiresTarget
-              ? "ターゲットを選択してください"
-              : "使用ボタンで発動"}
+            {requiresTarget ? targetMessage : "使用ボタンで発動"}
           </span>
           {!requiresTarget && (
             <button
@@ -132,7 +180,7 @@ export function App() {
             </button>
           )}
           <button
-            onClick={clearSelection}
+            onClick={handleCancel}
             className="px-4 py-2 border-2 border-accent-gold-dim text-accent-gold rounded hover:border-accent-gold transition-colors"
           >
             キャンセル

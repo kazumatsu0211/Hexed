@@ -1,10 +1,10 @@
 import {
   EyeIcon,
-  HandIcon,
   type Icon,
   MagnifyingGlassIcon,
   MaskHappyIcon,
   MicrophoneSlashIcon,
+  ShuffleIcon,
 } from "@phosphor-icons/react";
 
 import type { ItemId } from "../../../../core/types";
@@ -13,7 +13,7 @@ const ITEM_ICONS: Record<ItemId, Icon> = {
   monocle: MagnifyingGlassIcon,
   peephole: EyeIcon,
   pokerFace: MaskHappyIcon,
-  cheatingSleeve: HandIcon,
+  cheatingSleeve: ShuffleIcon,
   gag: MicrophoneSlashIcon,
 };
 

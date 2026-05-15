@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
+import { applyCheatingSleeve } from "./_actions/applyCheatingSleeve";
 import { applyGag } from "./_actions/applyGag";
 import { applyMonocle } from "./_actions/applyMonocle";
 import { applyPeephole } from "./_actions/applyPeephole";
@@ -36,5 +37,12 @@ export const useGameStore = create<GameStore>()(
     applyMonocle: (position) => set((draft) => applyMonocle(draft, position)),
 
     applyPeephole: () => set(applyPeephole),
+
+    applyCheatingSleeve: (a, b) => {
+      set((draft) => applyCheatingSleeve(draft, a, b));
+      if (get().winner === "ongoing") {
+        get().endTurn();
+      }
+    },
   })),
 );
