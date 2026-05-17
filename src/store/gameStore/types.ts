@@ -28,6 +28,7 @@ export type GameStoreActions = {
   applyPeephole: () => void;
   applyCheatingSleeve: (a: Position, b: Position) => void;
   applyFreeMonocle: (position: Position) => void;
+  runCpuTurn: () => void;
 };
 
 export type GameStore = GameStoreState & GameStoreActions;

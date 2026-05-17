@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
+import { decideCpuAction } from "../../core/cpuAi";
 import { applyCheatingSleeve } from "./_actions/applyCheatingSleeve";
 import { applyFreeMonocle } from "./_actions/applyFreeMonocle";
 import { applyGag } from "./_actions/applyGag";
@@ -48,5 +49,21 @@ export const useGameStore = create<GameStore>()(
 
     applyFreeMonocle: (position) =>
       set((draft) => applyFreeMonocle(draft, position)),
+
+    runCpuTurn: () => {
+      const state = get();
+      if (state.currentTurn !== "cpu") return;
+      if (state.winner !== "ongoing") return;
+
+      const action = decideCpuAction({
+        board: state.board,
+        peeked: state.peeked.cpu,
+        character: state.players.cpu.character,
+      });
+
+      if (action.type === "openTile") {
+        state.openTile(action.position);
+      }
+    },
   })),
 );

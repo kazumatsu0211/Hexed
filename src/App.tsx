@@ -27,21 +27,20 @@ export function App() {
   const applyPeephole = useGameStore((s) => s.applyPeephole);
   const applyCheatingSleeve = useGameStore((s) => s.applyCheatingSleeve);
   const applyFreeMonocle = useGameStore((s) => s.applyFreeMonocle);
-  const endTurn = useGameStore((s) => s.endTurn);
+  const runCpuTurn = useGameStore((s) => s.runCpuTurn);
 
   const { selectedItem, selectItem, clearSelection } = useSelectionContext();
 
   const [cheatFirst, setCheatFirst] = useState<Position | null>(null);
   const [abilitySelected, setAbilitySelected] = useState(false);
 
-  // TODO Phase 7: CPU AI を実装したらこのスキャフォルドを置き換える
   useEffect(() => {
     if (currentTurn !== "cpu") return;
     if (useGameStore.getState().winner !== "ongoing") return;
 
-    const timer = setTimeout(() => endTurn(), 500);
+    const timer = setTimeout(() => runCpuTurn(), 1500);
     return () => clearTimeout(timer);
-  }, [currentTurn, endTurn]);
+  }, [currentTurn, runCpuTurn]);
 
   const selfPlayer = players.player;
   const isGagged = selfPlayer.gaggedTurns > 0;
