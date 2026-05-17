@@ -27,6 +27,7 @@ export type GameStoreActions = {
   applyMonocle: (position: Position) => void;
   applyPeephole: () => void;
   applyCheatingSleeve: (a: Position, b: Position) => void;
+  applyFreeMonocle: (position: Position) => void;
 };
 
 export type GameStore = GameStoreState & GameStoreActions;

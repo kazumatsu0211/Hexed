@@ -4,7 +4,7 @@ import type { GameStoreState } from "../types";
 import { createInitialPlayer } from "./createInitialPlayer";
 
 export function buildInitialState(
-  playerCharId: CharacterId = "gambler",
+  playerCharId: CharacterId = "connoisseur",
   cpuCharId: CharacterId = "swindler",
 ): GameStoreState {
   return {

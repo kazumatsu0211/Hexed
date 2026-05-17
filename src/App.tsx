@@ -1,3 +1,4 @@
+import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 import { match } from "ts-pattern";
 
@@ -25,11 +26,13 @@ export function App() {
   const applyMonocle = useGameStore((s) => s.applyMonocle);
   const applyPeephole = useGameStore((s) => s.applyPeephole);
   const applyCheatingSleeve = useGameStore((s) => s.applyCheatingSleeve);
+  const applyFreeMonocle = useGameStore((s) => s.applyFreeMonocle);
   const endTurn = useGameStore((s) => s.endTurn);
 
   const { selectedItem, selectItem, clearSelection } = useSelectionContext();
 
   const [cheatFirst, setCheatFirst] = useState<Position | null>(null);
+  const [abilitySelected, setAbilitySelected] = useState(false);
 
   // TODO Phase 7: CPU AI を実装したらこのスキャフォルドを置き換える
   useEffect(() => {
@@ -48,17 +51,30 @@ export function App() {
   const requiresTarget =
     selectedItemId === "monocle" || selectedItemId === "cheatingSleeve";
 
+  const showAbilityButton =
+    selfPlayer.character.id === "connoisseur" && !selfPlayer.freeMonocleUsed;
+  // 注: connoisseur 能力は gag の影響を受けない（アイテムではないため）
+  const canUseAbility = isPlayerTurn && winner === "ongoing";
+
   function findPeekedAt(position: Position) {
     return peekedSelf.find((p) => isSamePosition(p.position, position));
   }
 
   function handleSelectItem(id: ItemId, index: number) {
     setCheatFirst(null);
+    setAbilitySelected(false);
     selectItem(id, index);
+  }
+
+  function handleSelectAbility() {
+    setCheatFirst(null);
+    clearSelection();
+    setAbilitySelected(true);
   }
 
   function handleCancel() {
     setCheatFirst(null);
+    setAbilitySelected(false);
     clearSelection();
   }
 
@@ -81,7 +97,16 @@ export function App() {
     clearSelection();
   }
 
+  function handleAbilityClick(position: Position) {
+    applyFreeMonocle(position);
+    setAbilitySelected(false);
+  }
+
   function handleTileClick(position: Position) {
+    if (abilitySelected) {
+      handleAbilityClick(position);
+      return;
+    }
     match(selectedItemId)
       .with(null, () => openTile(position))
       .with("monocle", () => handleMonocleClick(position))
@@ -111,7 +136,12 @@ export function App() {
       selectedItemId !== "monocle" &&
       selectedItemId !== "cheatingSleeve");
 
-  const targetMessage = match({ selectedItemId, cheatFirst })
+  const targetMessage = match({
+    abilitySelected,
+    selectedItemId,
+    cheatFirst,
+  })
+    .with({ abilitySelected: true }, () => "ターゲットを選択してください（無料モノクル）")
     .with({ selectedItemId: "cheatingSleeve", cheatFirst: null }, () =>
       "1マス目を選択してください",
     )
@@ -119,6 +149,10 @@ export function App() {
       "2マス目を選択してください",
     )
     .otherwise(() => "ターゲットを選択してください");
+
+  const showActionPanel = selectedItem !== null || abilitySelected;
+  const showUseButton = selectedItem !== null && !requiresTarget;
+  const showTargetMessage = requiresTarget || abilitySelected;
 
   return (
     <div className="min-h-screen flex flex-col items-center p-8 gap-4">
@@ -154,24 +188,46 @@ export function App() {
         label={`YOU (${selfPlayer.character.name})`}
       />
 
-      <div className="flex gap-2">
-        {selfPlayer.items.map((item, i) => (
-          <ItemButton
-            key={`${item.id}-${i}`}
-            item={item}
-            onClick={() => handleSelectItem(item.id, i)}
-            selected={selectedItem?.index === i}
-            disabled={!canUseItems}
-          />
-        ))}
+      <div className="flex items-center gap-4">
+        {showAbilityButton && (
+          <button
+            type="button"
+            onClick={handleSelectAbility}
+            disabled={!canUseAbility}
+            title="目利き：試合中1回、無料でモノクル発動"
+            aria-label="無料モノクル"
+            className={`relative flex items-center justify-center w-14 h-14 rounded border-2 transition-colors disabled:opacity-30 ${
+              abilitySelected
+                ? "bg-accent-curse text-bg-dark border-accent-curse"
+                : "border-accent-curse text-accent-curse hover:bg-accent-curse/20"
+            }`}
+          >
+            <MagnifyingGlassIcon size={28} />
+            <span className="absolute -bottom-1 right-0 text-[10px] font-bold leading-none px-1 bg-bg-dark rounded">
+              FREE
+            </span>
+          </button>
+        )}
+
+        <div className="flex gap-2">
+          {selfPlayer.items.map((item, i) => (
+            <ItemButton
+              key={`${item.id}-${i}`}
+              item={item}
+              onClick={() => handleSelectItem(item.id, i)}
+              selected={selectedItem?.index === i}
+              disabled={!canUseItems}
+            />
+          ))}
+        </div>
       </div>
 
-      {selectedItem && (
+      {showActionPanel && (
         <div className="flex gap-3 items-center">
           <span className="text-accent-gold-dim">
-            {requiresTarget ? targetMessage : "使用ボタンで発動"}
+            {showTargetMessage ? targetMessage : "使用ボタンで発動"}
           </span>
-          {!requiresTarget && (
+          {showUseButton && (
             <button
               onClick={handleUseSelected}
               className="px-4 py-2 bg-accent-gold text-bg-dark rounded font-bold hover:bg-accent-gold/80 transition-colors"

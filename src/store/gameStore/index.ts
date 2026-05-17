@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
 import { applyCheatingSleeve } from "./_actions/applyCheatingSleeve";
+import { applyFreeMonocle } from "./_actions/applyFreeMonocle";
 import { applyGag } from "./_actions/applyGag";
 import { applyMonocle } from "./_actions/applyMonocle";
 import { applyPeephole } from "./_actions/applyPeephole";
@@ -44,5 +45,8 @@ export const useGameStore = create<GameStore>()(
         get().endTurn();
       }
     },
+
+    applyFreeMonocle: (position) =>
+      set((draft) => applyFreeMonocle(draft, position)),
   })),
 );

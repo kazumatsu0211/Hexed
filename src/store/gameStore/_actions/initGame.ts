@@ -6,7 +6,7 @@ import type { GameStoreState } from "../types";
 
 export function initGame(
   draft: Draft<GameStoreState>,
-  playerCharId: CharacterId = "gambler",
+  playerCharId: CharacterId = "connoisseur",
   cpuCharId: CharacterId = "swindler",
 ) {
   Object.assign(draft, buildInitialState(playerCharId, cpuCharId));
