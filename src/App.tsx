@@ -28,6 +28,7 @@ export function App() {
   const applyCheatingSleeve = useGameStore((s) => s.applyCheatingSleeve);
   const applyFreeMonocle = useGameStore((s) => s.applyFreeMonocle);
   const runCpuTurn = useGameStore((s) => s.runCpuTurn);
+  const logLength = useGameStore((s) => s.log.length);
 
   const { selectedItem, selectItem, clearSelection } = useSelectionContext();
 
@@ -40,7 +41,7 @@ export function App() {
 
     const timer = setTimeout(() => runCpuTurn(), 1500);
     return () => clearTimeout(timer);
-  }, [currentTurn, runCpuTurn]);
+  }, [currentTurn, logLength, runCpuTurn]);
 
   const selfPlayer = players.player;
   const isGagged = selfPlayer.gaggedTurns > 0;

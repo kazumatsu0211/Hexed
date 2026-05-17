@@ -1,3 +1,4 @@
+import { match } from "ts-pattern";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
@@ -55,15 +56,38 @@ export const useGameStore = create<GameStore>()(
       if (state.currentTurn !== "cpu") return;
       if (state.winner !== "ongoing") return;
 
+      const cpu = state.players.cpu;
       const action = decideCpuAction({
         board: state.board,
         peeked: state.peeked.cpu,
-        character: state.players.cpu.character,
+        character: cpu.character,
+        items: cpu.items,
+        hp: cpu.hp,
+        pokerfaceActive: cpu.pokerfaceActive,
+        canUseItem: state.cpuActionsThisTurn === 0,
       });
 
-      if (action.type === "openTile") {
-        state.openTile(action.position);
-      }
+      match(action)
+        .with({ type: "openTile" }, (a) => state.openTile(a.position))
+        .with({ type: "useMonocle" }, (a) => {
+          state.applyMonocle(a.position);
+          set((draft) => {
+            draft.cpuActionsThisTurn += 1;
+          });
+        })
+        .with({ type: "usePeephole" }, () => {
+          state.applyPeephole();
+          set((draft) => {
+            draft.cpuActionsThisTurn += 1;
+          });
+        })
+        .with({ type: "usePokerface" }, () => {
+          state.applyPokerface();
+          set((draft) => {
+            draft.cpuActionsThisTurn += 1;
+          });
+        })
+        .exhaustive();
     },
   })),
 );

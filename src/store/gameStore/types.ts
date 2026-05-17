@@ -15,6 +15,7 @@ export type GameStoreState = {
   winner: TurnSide | "draw" | "ongoing";
   log: string[];
   peeked: Record<TurnSide, PeekedTile[]>;
+  cpuActionsThisTurn: number;
 };
 
 export type GameStoreActions = {

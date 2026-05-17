@@ -18,5 +18,6 @@ export function buildInitialState(
     winner: "ongoing",
     log: ["ゲーム開始"],
     peeked: { player: [], cpu: [] },
+    cpuActionsThisTurn: 0,
   };
 }
