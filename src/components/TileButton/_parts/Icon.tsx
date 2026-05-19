@@ -1,22 +1,20 @@
 import {
-  CircleIcon,
   DiamondIcon,
-  HeartIcon,
   type Icon,
   type IconWeight,
+  LightningIcon,
   LockIcon,
-  SkullIcon,
+  SparkleIcon,
   SwordIcon,
 } from "@phosphor-icons/react";
 
 import type { TileEffect } from "../../../core/types";
 
-const TILE_ICONS: Record<TileEffect, Icon> = {
+const TILE_ICONS: Record<Exclude<TileEffect, "empty">, Icon> = {
   attack: SwordIcon,
-  curse: SkullIcon,
-  blessing: HeartIcon,
+  curse: LightningIcon,
+  blessing: SparkleIcon,
   treasure: DiamondIcon,
-  empty: CircleIcon,
 };
 
 type IconProps = {
@@ -28,12 +26,14 @@ type IconProps = {
 export function Icon(props: IconProps) {
   const { weight, tileEffect, isHidden = false } = props;
 
-  const TileIcon = TILE_ICONS[tileEffect];
-
-  if (isHidden)
+  if (isHidden) {
     return (
       <LockIcon size={32} weight={weight} className="text-accent-gold-dim" />
     );
+  }
 
+  if (tileEffect === "empty") return null;
+
+  const TileIcon = TILE_ICONS[tileEffect];
   return <TileIcon size={32} weight={weight} />;
 }

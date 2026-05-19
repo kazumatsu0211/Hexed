@@ -1,16 +1,16 @@
 import { cva } from "class-variance-authority";
 
 export const itemButtonVariants = cva(
-  "w-14 h-14 flex items-center justify-center rounded border-2 transition-colors",
+  "w-[68px] h-[68px] flex items-center justify-center border rounded-[2px] transition-colors",
   {
     variants: {
       state: {
-        idle: "bg-bg-mid border-accent-gold-dim hover:border-accent-gold cursor-pointer",
+        idle: "bg-transparent border-accent-gold-dim text-accent-gold-dim hover:border-accent-gold hover:text-accent-gold cursor-pointer",
         selected:
-          "bg-accent-gold/20 border-accent-gold ring-2 ring-accent-gold/40",
+          "bg-accent-gold/[0.12] border-accent-gold text-accent-gold shadow-gold-glow-xs cursor-pointer",
       },
       disabled: {
-        true: "cursor-not-allowed opacity-50",
+        true: "cursor-not-allowed opacity-30",
         false: "",
       },
     },
@@ -18,7 +18,7 @@ export const itemButtonVariants = cva(
       {
         state: "idle",
         disabled: true,
-        class: "hover:border-accent-gold-dim", // hover 効果を弱める
+        class: "hover:border-accent-gold-dim hover:text-accent-gold-dim",
       },
     ],
     defaultVariants: {

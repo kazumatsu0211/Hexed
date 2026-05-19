@@ -26,5 +26,5 @@ export function Icon(props: IconProps) {
 
   const ItemIcon = ITEM_ICONS[itemId];
 
-  return <ItemIcon size={28} weight="regular" />;
+  return <ItemIcon size={26} weight="regular" />;
 }
