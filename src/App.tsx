@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { match } from "ts-pattern";
 
 import { BoardGrid } from "./components/BoardGrid/BoardGrid";
+import { CharacterSelect } from "./components/CharacterSelect/CharacterSelect";
 import { GameOverModal } from "./components/GameOverModal/GameOverModal";
 import { HpBar } from "./components/HpBar/HpBar";
 import { ItemButton } from "./components/ItemButton/ItemButton";
@@ -19,8 +20,10 @@ export function App() {
   const turnCount = useGameStore((s) => s.turnCount);
   const winner = useGameStore((s) => s.winner);
   const peekedSelf = useGameStore((s) => s.peeked.player);
+  const phase = useGameStore((s) => s.phase);
   const openTile = useGameStore((s) => s.openTile);
-  const reset = useGameStore((s) => s.reset);
+  const initGame = useGameStore((s) => s.initGame);
+  const goToSelect = useGameStore((s) => s.goToSelect);
   const applyPokerface = useGameStore((s) => s.applyPokerface);
   const applyGag = useGameStore((s) => s.applyGag);
   const applyMonocle = useGameStore((s) => s.applyMonocle);
@@ -154,6 +157,17 @@ export function App() {
   const showUseButton = selectedItem !== null && !requiresTarget;
   const showTargetMessage = requiresTarget || abilitySelected;
 
+  if (phase === "select") {
+    return (
+      <div className="min-h-screen flex flex-col items-center p-8 gap-6">
+        <h1 className="text-6xl font-title text-accent-gold tracking-wider">
+          HEXED
+        </h1>
+        <CharacterSelect onStart={initGame} />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col items-center p-8 gap-4">
       <h1 className="text-6xl font-title text-accent-gold tracking-wider">
@@ -251,7 +265,7 @@ export function App() {
       )}
 
       {winner !== "ongoing" && (
-        <GameOverModal winner={winner} onRestart={reset} />
+        <GameOverModal winner={winner} onRestart={goToSelect} />
       )}
     </div>
   );

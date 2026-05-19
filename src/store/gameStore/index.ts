@@ -10,6 +10,7 @@ import { applyMonocle } from "./_actions/applyMonocle";
 import { applyPeephole } from "./_actions/applyPeephole";
 import { applyPokerface } from "./_actions/applyPokerface";
 import { endTurn } from "./_actions/endTurn";
+import { goToSelect } from "./_actions/goToSelect";
 import { initGame } from "./_actions/initGame";
 import { openTile } from "./_actions/openTile";
 import { buildInitialState } from "./_factories/buildInitialState";
@@ -31,7 +32,7 @@ export const useGameStore = create<GameStore>()(
 
     endTurn: () => set(endTurn),
 
-    reset: () => get().initGame(),
+    goToSelect: () => set(goToSelect),
 
     applyPokerface: () => set(applyPokerface),
 

@@ -10,4 +10,5 @@ export function initGame(
   cpuCharId: CharacterId = "swindler",
 ) {
   Object.assign(draft, buildInitialState(playerCharId, cpuCharId));
+  draft.phase = "playing";
 }

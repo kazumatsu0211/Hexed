@@ -8,6 +8,7 @@ export function buildInitialState(
   cpuCharId: CharacterId = "swindler",
 ): GameStoreState {
   return {
+    phase: "select",
     board: createBoard(),
     players: {
       player: createInitialPlayer(playerCharId),
