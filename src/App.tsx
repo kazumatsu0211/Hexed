@@ -7,6 +7,7 @@ import { CharacterSelect } from "./components/CharacterSelect/CharacterSelect";
 import { GameOverModal } from "./components/GameOverModal/GameOverModal";
 import { HpBar } from "./components/HpBar/HpBar";
 import { ItemButton } from "./components/ItemButton/ItemButton";
+import { RulesDialog } from "./components/RulesDialog/RulesDialog";
 import { TileButton } from "./components/TileButton/TileButton";
 import { useSelectionContext } from "./contexts/SelectionContext/useSelectionContext";
 import { isSamePosition } from "./core/board";
@@ -164,6 +165,7 @@ export function App() {
           HEXED
         </h1>
         <CharacterSelect onStart={initGame} />
+        <RulesDialog />
       </div>
     );
   }
@@ -267,6 +269,8 @@ export function App() {
       {winner !== "ongoing" && (
         <GameOverModal winner={winner} onRestart={goToSelect} />
       )}
+
+      <RulesDialog />
     </div>
   );
 }
